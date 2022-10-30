@@ -1,0 +1,25 @@
+#!/bin/bash
+[[ "${SET_POSTGRES_VERSION}" ]] || { echo "Missing SET_POSTGRES_VERSION"; exit 1; }
+[[ "${SET_LOCALE}" ]] || { echo "Missing SET_LOCALE"; exit 1; }
+[[ "${SET_ENCODING}" ]] || { echo "Missing SET_ENCODING"; exit 1; }
+[[ "${SET_LANG}" ]] || { echo "Missing SET_LANG"; exit 1; }
+
+DOCKER_TAG="${SET_POSTGRES_VERSION}-${SET_LOCALE}.${SET_ENCODING}"
+VCS_REF=$(git rev-parse --short HEAD)
+
+echo "[build] DOCKER_TAG=${DOCKER_TAG}"
+echo "[build] SET_POSTGRES_VERSION=${SET_POSTGRES_VERSION}"
+echo "[build] SET_LOCALE=${SET_LOCALE}"
+echo "[build] SET_ENCODING=${SET_ENCODING}"
+echo "[build] SET_LANG=${SET_LANG}"
+echo "[build] VCS_REF=${VCS_REF}"
+
+docker build . \
+    --build-arg SET_POSTGRES_VERSION="${SET_POSTGRES_VERSION}" \
+    --build-arg SET_LOCALE="${SET_LOCALE}" \
+    --build-arg SET_ENCODING="${SET_ENCODING}" \
+    --build-arg SET_LANG="${SET_LANG}" \
+    --build-arg VCS_REF="${VCS_REF}" \
+    --build-arg BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+    --no-cache \
+    -t onjin/postgres:"${DOCKER_TAG}"
